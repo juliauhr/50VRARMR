@@ -2,41 +2,15 @@
 <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
 <script src="https://raw.githack.com/jeromeetienne/AR.js/2.0.4/aframe/build/aframe-ar.js"></script>
 <script src="https://unpkg.com/aframe-animation-component@^5.1.2/dist/aframe-animation-component.min.js"></script> 
-<script>
-  AFRAME.registerComponent('ball-clicker', {
-    init: function() {
-      var collectibles = [];
-      collectibles.push({
-        id:"ball0",
-        callNumber:"B 1649.P373 D646 2017",
-        collected:false
-      })
-      collectibles.push({
-        id:"ball1",
-        callNumber:"DG 311.G5 1994",
-        collected:false
-      })
-      collectibles.push({
-        id:"ball2",
-        callNumber:"JK 1976.S43 2001",
-        collected:false
-      })
-      
-      totalCollectibles = collectibles.length;
-      numCollected = 0;
-      
-      nextIndex = Math.floor(Math.random()*collectibles.length); //pick a random element from collectibles array to use as the first stop
-      nextStop = collectibles[nextIndex].callNumber; //get the call number for that location
-      document.getElementById("textBox").innerHTML = "Collected 0/"+totalCollectibles+"<br>First stop: " + nextStop;//add that call number to the text box
-
+<script defer>
+  
+  AFRAME.registerComponent('shape-clicker', {
         var el = this.el;
         el.addEventListener('click', function(){
           num = el.getAttribute("num");
           if(!collectibles[nextIndex].collected && (num==nextIndex)){ //only collect this object if not already collected
-            collectibles[nextIndex].collected = true; //collect the clicked ball
-            numCollected++; //add 1 to number of balls collected
-            document.querySelector('#ball'+num).emit('shrink');
-            
+            collectibles[nextIndex].collected = true; //collect the clicked shape
+            numCollected++; //add 1 to number of shapes collected            
             if(numCollected<totalCollectibles){ //check whether you're finished
               if(nextIndex < 2){ //if not finished, go to next location
                 nextIndex++;
@@ -50,46 +24,21 @@
             }
           }
         })
-      }}); //end of ball-clicker component
+      }});
   
 </script>
 </head>
 
 <body>
   <div id="scene">
-    
 	<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" cursor="rayOrigin:mouse">
     <a-assets>
       <img id="moon" src="https://cdn.glitch.com/0e84e7ca-3ae8-4a53-8386-e9652a782be3%2Fmoon.jpg?v=1565748926880">
     </a-assets>
-		
-    <a-marker type="barcode" value="0"> <!--define the marker for arjs-->
-      <a-sphere ball-clicker num="0" id="ball0" position="0 0.5 0" rotation="20 0 0" material="src:#moon" color="red" 
-        animation="property:rotation; to:20 360 0; dur:5000; loop:true; easing:linear;"
-        animation__shrink="property:scale; to:0 0 0; dur:3000; startEvents:shrink;">
-      </a-sphere> <!--define the shape to place on that marker-->
-    </a-marker>
-    
-    <a-marker type="barcode" value="1">
-      <a-sphere ball-clicker num="1" id="ball1" position="0 0.5 0" rotation="20 0 0" material="src:#moon" color="cyan" 
-        animation="property:rotation; to:20 360 0; dur:5000; loop:true; easing:linear;"
-        animation__shrink="property:scale; to:0 0 0; dur:3000; startEvents:shrink;">
-      </a-sphere>
-    </a-marker>
-    
-    <a-marker type="barcode" value="2">
-      <a-sphere ball-clicker num="2" id="ball2" position="0 0.5 0" rotation="20 0 0" material="src:#moon" color="yellow" 
-        animation="property:rotation; to:20 360 0; dur:5000; loop:true; easing:linear;"
-        animation__shrink="property:scale; to:0 0 0; dur:3000; startEvents:shrink;">
-      </a-sphere>
-    </a-marker>
-
     <a-entity camera></a-entity>
-    
 	</a-scene>
-    
   </div>
-  <div id="textBox"></div>
+  <div id="textBox">Hello World</div>
 </body>
 
 <style>
@@ -107,3 +56,50 @@
     background-color:white;
   }
 </style>
+
+<script>
+  var collectibles = [];
+  
+  //copy this block of code to add a new collectible
+      collectibles.push({
+        shape:"a-sphere",
+        color:"orange",
+        callNumber:"B 1649.P373 D646 2017",
+        collected:false
+      })
+      
+      collectibles.push({
+        shape:"a-sphere",
+        color:"teal",
+        callNumber:"DG 311.G5 1994",
+        collected:false
+      })
+      
+      collectibles.push({
+        shape:"a-sphere",
+        color:"olive",
+        callNumber:"JK 1976.S43 2001",
+        collected:false
+      })
+  
+  for(i=0; i<collectibles.length; i++){
+    var newMarker = document.createElement('a-marker');
+    newMarker.setAttribute('type', 'barcode');
+    newMarker.setAttribute('value', i);
+    var newShape = document.createElement(collectibles[i].shape);
+    newShape.setAttribute('color', collectibles[i].color);
+    newShape.setAttribute('shape-clicker','');
+    newShape.setAttribute('material', 'src:#moon');
+    newShape.setAttribute('animation','property:rotation; to:20 360 0; dur:5000; loop:true; easing:linear;');
+    newShape.setAttribute('animation__shrink','property:scale; to:0 0 0; dur:3000; startEvents:click;');
+    newMarker.appendChild(newShape);
+    document.querySelector('a-scene').appendChild(newMarker);
+  }
+  
+  var totalCollectibles = collectibles.length;
+  var numCollected = 0;
+  var nextIndex = Math.floor(Math.random()*collectibles.length); //pick a random element from collectibles array to use as the first stop
+  var nextStop = collectibles[nextIndex].callNumber; //get the call number for that location
+  document.getElementById("textBox").innerHTML = "Collected 0/"+totalCollectibles+"<br>First stop: " + nextStop;//add that call number to the text box
+
+</script>
